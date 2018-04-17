@@ -14,7 +14,7 @@ class User(db.Model):
     jobs_completed = db.Column(db.Integer, unique=False, nullable=False)
     computer_rating = db.Column(db.Float, unique=False, nullable=True)
 
-class Jobs(db.Model):
+class Job(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     files = db.Column(db.String(80), unique=True, nullable=False)
     est_hours = db.Column(db.Float, unique=False, nullable=False)
