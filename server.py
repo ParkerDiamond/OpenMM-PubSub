@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import jsonify
+from flask import jsonify, send_file
 from flask import request
 import flask_uploads
 from flask_sqlalchemy import SQLAlchemy
@@ -80,17 +80,16 @@ def post_job():
         the payout amount which cannot exceed the amount in their account.'''
 
     try:
-        if request.headers['Content-Type'] == 'multipart/form-data':
-            data = request.json
-            username = data['username']
-            password = data['password']
-            job_files = request.files['job_files']
-            est_hours = data['est_hours']
-            payout = data['payout']
-        else:
-            response = jsonify({'Error': 'Please use Content-Type "multipart/form-data"'})
-            response.status_code = 415
-            return response
+        data = request.form
+        username = data['username']
+        password = data['password']
+        est_hours = data['est_hours']
+        payout = data['payout']
+        job_files = request.files.get('job_files')
+
+        response = jsonify({'Status':'Success'})
+        response.status_code = 200
+        return response
     except KeyError as ex:
         response = jsonify({'Error': str(ex)})
         response.status_code = 400
@@ -98,9 +97,19 @@ def post_job():
 
 @app.route("/get_job", methods=['POST'])
 def get_job():
-    if request.headers['Content-Type'] == 'application/json':
-        data = request.json 
-    pass
+    try:
+        if request.headers['Content-Type'] == 'application/json':
+            #data = request.json
+            return send_file('/tmp/test.db', as_attachment=True)
+        else:
+            response = jsonify({'Error': 'Please use Content-Type "application/json"'})
+            response.status_code = 415
+            return response
+    except KeyError as ex:
+        response = jsonify({'Error': str(ex)})
+        response.status_code = 400
+        return response
+        
 
 @app.route("/post_results", methods=['POST'])
 def post_results():
