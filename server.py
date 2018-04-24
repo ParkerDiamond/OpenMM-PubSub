@@ -1,3 +1,5 @@
+import os
+import tempfile
 from flask import Flask
 from flask import jsonify, send_file
 from flask import request
@@ -7,6 +9,7 @@ from db import User, Job
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+app.config['JOB_DIR'] = '/tmp/openmm_jobs'
 db = SQLAlchemy(app)
 
 @app.route("/")
@@ -31,13 +34,13 @@ def hello():
 @app.route("/register", methods=['POST'])
 def register():
 
-    try:
+    #try:
         if request.headers['Content-Type'] == 'application/json':
             user = request.json
             user['jobs_submitted'] = 0
             user['jobs_completed'] = 0
             user['computer_rating'] = -1.0
-        
+
             if User.query.filter_by(username=user['username']).first():
                 response = jsonify({'Error': 'Username already taken'})
                 response.status_code = 409
@@ -59,10 +62,10 @@ def register():
             response = jsonify({'Error': 'Please use Content-Type "application/json"'})
             response.status_code = 415
             return response
-    except KeyError as ex:
-        response = jsonify({'Error': str(ex)})
-        response.status_code = 400
-        return response
+    #except KeyError as ex:
+    #    response = jsonify({'Error': str(ex)})
+    #    response.status_code = 400
+    #    return response
         
 
 '''JOBS:
@@ -83,14 +86,32 @@ def post_job():
         data = request.form
         username = data['username']
         password = data['password']
+
+        user = User.query.filter((User.username == username) & (User.password == password)).first()
+        if user is None:
+            raise ValueError("Invalid username or password")
+
         est_hours = data['est_hours']
         payout = data['payout']
-        job_files = request.files.get('job_files')
+
+        job_files = request.files['job_files']
+        if job_files:
+            handle, placeholder = tempfile.mkstemp(dir=app.config['JOB_DIR'])
+            os.close(handle)
+            os.remove(os.path.join(app.config['JOB_DIR'], placeholder))
+            job_files.save(os.path.join(app.config['JOB_DIR'], placeholder))
+                
+            newJob = Job(id=int(hash(placeholder)),
+                         files=placeholder,
+                         est_hours=float(est_hours),
+                         payout=float(payout))
+            db.session.add(newJob)
+            db.session.commit()
 
         response = jsonify({'Status':'Success'})
         response.status_code = 200
         return response
-    except KeyError as ex:
+    except (ValueError,KeyError) as ex:
         response = jsonify({'Error': str(ex)})
         response.status_code = 400
         return response
