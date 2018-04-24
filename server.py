@@ -121,7 +121,7 @@ def get_job():
     try:
         if request.headers['Content-Type'] == 'application/json':
             #data = request.json
-            return send_file('/tmp/test.db', as_attachment=True)
+	    return send_file(app.config['JOB_DIR']+'/*', as_attachment=True)
         else:
             response = jsonify({'Error': 'Please use Content-Type "application/json"'})
             response.status_code = 415
