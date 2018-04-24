@@ -16,6 +16,10 @@ def submit_job(job_data,filename):
     files = {'job_files':open(filename,'rb')}
     response = requests.post('http://127.0.0.1:5000/post_job',files=files,data=job_data)
 
+def get_job():
+    response = requests.get('http://127.0.0.1:5000/get_job',allow_redirects=True)
+    open('job_file.tar.gz','wb').write(response.content)
+
 if __name__ == "__main__":
 
     user_data = {'username':'abc','password':'abc','account_id':123}
@@ -27,4 +31,5 @@ if __name__ == "__main__":
                 'payout':1.2}
 
     #register(user_data)
-    submit_job(job_data,'learning.tar.gz')
+    #submit_job(job_data,'learning.tar.gz')
+    get_job()

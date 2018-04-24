@@ -116,16 +116,13 @@ def post_job():
         response.status_code = 400
         return response
 
-@app.route("/get_job", methods=['POST'])
+@app.route("/get_job", methods=['GET'])
 def get_job():
     try:
-        if request.headers['Content-Type'] == 'application/json':
-            #data = request.json
-            return send_file(app.config['JOB_DIR']+'/*', as_attachment=True)
-        else:
-            response = jsonify({'Error': 'Please use Content-Type "application/json"'})
-            response.status_code = 415
-            return response
+        for root,dirs,files in os.walk(app.config['JOB_DIR']):
+            for f in files:
+                job_file = os.path.join(root,f)
+                return send_file(job_file, as_attachment=True)
     except KeyError as ex:
         response = jsonify({'Error': str(ex)})
         response.status_code = 400
