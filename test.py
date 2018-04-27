@@ -20,6 +20,12 @@ def get_job():
     response = requests.get('http://127.0.0.1:5000/get_job',allow_redirects=True)
     open('job_file.tar.gz','wb').write(response.content)
 
+def submit_results():
+    pass
+
+def get_results():
+    pass
+
 if __name__ == "__main__":
 
     user_data = {'username':'abc','password':'abc','account_id':123}

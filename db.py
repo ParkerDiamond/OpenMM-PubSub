@@ -14,8 +14,17 @@ class User(db.Model):
     jobs_completed = db.Column(db.Integer, unique=False, nullable=False)
     computer_rating = db.Column(db.Float, unique=False, nullable=True)
 
+class Account(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    balance = db.Column(db.Float, unique=False, nullable=True)
+
 class Job(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     files = db.Column(db.String(80), unique=True, nullable=False)
     est_hours = db.Column(db.Float, unique=False, nullable=False)
     payout = db.Column(db.Float, unique=False, nullable=False)
+
+class Results(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    files = db.Column(db.String(80), unique=True, nullable=False)
+    validated = db.Column(db.Boolean, unique=False, nullable=False)
